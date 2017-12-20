@@ -14,10 +14,7 @@ public class UserThread implements Runnable {
 	private DBController mDBController;
 	private int userId;
 	
-	public static final String KEY_COMMAND_ADD_RESUME = "KEY_COMMAND_ADD_RESUME";
-    public final static String KEY_COMMAND_TYPE = "KEY_COMMAND_TYPE";
-    public final static String KEY_COMMAND_GET_RESUMES = "KEY_COMMAND_GET_RESUMES";
-    public final static String KEY_COMMAND_FIND_RESUMES = "KEY_COMMAND_FIND_RESUMES";
+	public final static String KEY_COMMAND_FIND_RESUMES = "KEY_COMMAND_FIND_RESUMES";
     public final static String KEY_COMMAND_GET_USER = "KEY_COMMAND_GET_USER";
     public static final String KEY_JSON_RESULT = "KEY_JSON_RESULT";
     public static final String KEY_COMMAND_GET_CATEGORIES = "KEY_COMMAND_GET_CATEGORIES";
@@ -26,9 +23,13 @@ public class UserThread implements Runnable {
     public static final String KEY_COMMAND_SIGN_IN = "KEY_COMMAND_SIGN_IN";
     public static final String KEY_COMMAND_TOGGLE_FAV = "KEY_COMMAND_TOGGLE_FAV";
     public static final String KEY_COMMAND_SAVE_RESUME = "KEY_COMMAND_SAVE_RESUME";
-    public static final String KEY_COMMAND_MY_RESUMES = "KEY_COMMAND_MY_RESUMES";
     public static final String KEY_COMMAND_DELETE_RESUME = "KEY_COMMAND_DELETE_RESUME";
     public static final String KEY_COMMAND_GET_FAV_RESUMES = "KEY_COMMAND_GET_FAV_RESUMES";
+    public static final String KEY_COMMAND_GET_FAV_VACANCIES = "KEY_COMMAND_GET_FAV_VACANCIES";
+    public static final String KEY_COMMAND_FIND_VACANCIES = "KEY_COMMAND_FIND_VACANCIES";
+    public static final String KEY_COMMAND_TOGGLE_FAV_VACANCY = "KEY_COMMAND_TOGGLE_FAV_VACANCY";
+    public static final String KEY_COMMAND_SAVE_VACANCY = "KEY_COMMAND_SAVE_VACANCY";
+    public static final String KEY_COMMAND_DELETE_VACANCY = "KEY_COMMAND_DELETE_VACANCY";
     
 	public UserThread(Socket s) {
 		this.socket = s;
@@ -49,15 +50,7 @@ public class UserThread implements Runnable {
 				MesFromClient mfc = new Gson().fromJson(message, MesFromClient.class);
 				//System.out.println(mfc.getCommand());
 				
-				if(mfc.getCommand().equals(KEY_COMMAND_GET_RESUMES)){
-					System.out.println(KEY_COMMAND_GET_RESUMES);
-					mResumes = mDBController.getResumes(userId);
-					Gson gson = new Gson();
-					String jsonData = gson.toJson(mResumes);
-					mfc.setJSONData(jsonData);
-					String jsonString = gson.toJson(mfc);
-					send(jsonString);
-				}else if(mfc.getCommand().equals(KEY_COMMAND_GET_CATEGORIES)){
+				if(mfc.getCommand().equals(KEY_COMMAND_GET_CATEGORIES)){
 					System.out.println(KEY_COMMAND_GET_CATEGORIES);
 					ArrayList<String> data = mDBController.getCategories();
 					Gson gson = new Gson();
@@ -104,6 +97,15 @@ public class UserThread implements Runnable {
 					mfc.setJSONData(jsonData);
 					String jsonString = gson.toJson(mfc);
 					send(jsonString);
+				}else if(mfc.getCommand().equals(KEY_COMMAND_FIND_VACANCIES)){
+					System.out.println(KEY_COMMAND_FIND_VACANCIES);
+					FindPost findPost = new Gson().fromJson(mfc.getJSONData(), FindPost.class);
+					mResumes = mDBController.findVacancies(findPost, userId);
+					Gson gson = new Gson();
+					String jsonData = gson.toJson(mResumes);
+					mfc.setJSONData(jsonData);
+					String jsonString = gson.toJson(mfc);
+					send(jsonString);
 				}else if(mfc.getCommand().equals(KEY_COMMAND_GET_FAV_RESUMES)){
 					System.out.println(KEY_COMMAND_GET_FAV_RESUMES);
 					FindPost findPost = new Gson().fromJson(mfc.getJSONData(), FindPost.class);
@@ -113,14 +115,35 @@ public class UserThread implements Runnable {
 					mfc.setJSONData(jsonData);
 					String jsonString = gson.toJson(mfc);
 					send(jsonString);
+				}else if(mfc.getCommand().equals(KEY_COMMAND_GET_FAV_VACANCIES)){
+					System.out.println(KEY_COMMAND_GET_FAV_VACANCIES);
+					FindPost findPost = new Gson().fromJson(mfc.getJSONData(), FindPost.class);
+					mResumes = mDBController.getFavVacancies(findPost, userId);
+					Gson gson = new Gson();
+					String jsonData = gson.toJson(mResumes);
+					mfc.setJSONData(jsonData);
+					String jsonString = gson.toJson(mfc);
+					send(jsonString);
 				}else if(mfc.getCommand().equals(KEY_COMMAND_TOGGLE_FAV)){
 					System.out.println(KEY_COMMAND_TOGGLE_FAV);
 					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);
 					mDBController.toggleFavoriteResume(mPoster, userId);
+				}else if(mfc.getCommand().equals(KEY_COMMAND_TOGGLE_FAV_VACANCY)){
+					System.out.println(KEY_COMMAND_TOGGLE_FAV_VACANCY);
+					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);
+					mDBController.toggleFavoriteVacancy(mPoster, userId);
 				}else if(mfc.getCommand().equals(KEY_COMMAND_SAVE_RESUME)){
 					System.out.println(KEY_COMMAND_SAVE_RESUME);
 					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);
 					mDBController.saveResume(mPoster);
+				}else if(mfc.getCommand().equals(KEY_COMMAND_SAVE_VACANCY)){
+					System.out.println(KEY_COMMAND_SAVE_VACANCY);
+					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);
+					mDBController.saveVacancy(mPoster);
+				}else if(mfc.getCommand().equals(KEY_COMMAND_DELETE_VACANCY)){
+					System.out.println(KEY_COMMAND_DELETE_VACANCY);
+					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);
+					mDBController.deleteVacancy(mPoster);
 				}else if(mfc.getCommand().equals(KEY_COMMAND_DELETE_RESUME)){
 					System.out.println(KEY_COMMAND_DELETE_RESUME);
 					Poster mPoster = new Gson().fromJson(mfc.getJSONData(), Poster.class);

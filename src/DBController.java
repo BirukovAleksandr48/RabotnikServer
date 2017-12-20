@@ -97,7 +97,7 @@ public class DBController{
 	
 	public void saveResume(Poster poster){
 		try {
-			cstmt = connection.prepareCall("{call SaveResume(?,?,?,?,?,?,?)}");
+			cstmt = connection.prepareCall("{call SaveResume(?,?,?,?,?,?,?,?)}");
 			cstmt.setString("title", poster.getTitle());
 			cstmt.setString("body", poster.getBody());
 			cstmt.setString("city", poster.getCity());
@@ -105,6 +105,7 @@ public class DBController{
 			cstmt.setString("category", poster.getCategory());
 			cstmt.setInt("idCreator", poster.getIdCreator());
 			cstmt.setInt("id", poster.getId());
+			cstmt.setString("email", poster.getEmail());
 			cstmt.execute();
 			
 			cstmt.close();
@@ -113,7 +114,38 @@ public class DBController{
 		}
 	}
 	
+	public void saveVacancy(Poster poster){
+		try {
+			cstmt = connection.prepareCall("{call SaveVacancy(?,?,?,?,?,?,?,?)}");
+			cstmt.setString("title", poster.getTitle());
+			cstmt.setString("body", poster.getBody());
+			cstmt.setString("city", poster.getCity());
+			cstmt.setString("sallary", poster.getSallary());
+			cstmt.setString("category", poster.getCategory());
+			cstmt.setInt("idCreator", poster.getIdCreator());
+			cstmt.setInt("id", poster.getId());
+			cstmt.setString("email", poster.getEmail());
+			cstmt.execute();
+			
+			cstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteVacancy(Poster poster){
+		try {
+			cstmt = connection.prepareCall("{call DeleteVacancy(?)}");
+			cstmt.setInt("id", poster.getId());
+			cstmt.execute();
+			
+			cstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	public void deleteResume(Poster poster){
+		System.out.println("deleteResume");
 		try {
 			cstmt = connection.prepareCall("{call DeleteResume(?)}");
 			cstmt.setInt("id", poster.getId());
@@ -125,26 +157,7 @@ public class DBController{
 		}
 	}
 	
-	public ArrayList<Poster> getResumes(int userId){
-		try {
-			mResumes.clear();
-			cstmt = connection.prepareCall("{call GetResumes(?)}");
-			cstmt.setInt("idUser", userId);
-			cstmt.execute();
-			myResult = cstmt.getResultSet();
-			while(myResult.next()){
-				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
-						myResult.getString(4), myResult.getString(5), myResult.getString(6),
-						myResult.getString(7), myResult.getBoolean(8)));
-			}
-			
-			cstmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return mResumes;
-	}
-	public ArrayList<Poster> getMyResumes(int userId){
+	/*public ArrayList<Poster> getMyResumes(int userId){
 		try {
 			mResumes.clear();
 			cstmt = connection.prepareCall("{call GetResumesOfUser(?)}");
@@ -162,25 +175,8 @@ public class DBController{
 			e.printStackTrace();
 		}
 		return mResumes;
-	}
-	public ArrayList<Poster> getFavoriteResumes(int userId){
-		try {
-			mResumes.clear();
-			cstmt = connection.prepareCall("{call GetFavoriteResumes(?)}");
-			cstmt.setInt("idUser", userId);
-			cstmt.execute();
-			myResult = cstmt.getResultSet();
-			while(myResult.next()){
-				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
-						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), myResult.getBoolean(8)));
-			}
-			cstmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return mResumes;
-	}
-	
+	}*/
+
 	public ArrayList<Poster> findResumes(FindPost findPost, int userId){
 		try {
 			mResumes.clear();
@@ -195,7 +191,30 @@ public class DBController{
 			myResult = cstmt.getResultSet();
 			while(myResult.next()){
 				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
-						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), myResult.getBoolean(8)));
+						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), myResult.getBoolean(8), myResult.getString(9)));
+			}
+			cstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return mResumes;
+	}
+	
+	public ArrayList<Poster> findVacancies(FindPost findPost, int userId){
+		try {
+			mResumes.clear();
+			cstmt = connection.prepareCall("{call FindVacancies(?,?,?,?,?,?)}");
+			cstmt.setString("word", findPost.getWord());
+			cstmt.setString("city", findPost.getCity());
+			cstmt.setString("category", findPost.getCategory());
+			cstmt.setString("minSalary", findPost.getSallary());
+			cstmt.setInt("idCreator", findPost.getIdCreator());
+			cstmt.setInt("idUser", userId);
+			cstmt.execute();
+			myResult = cstmt.getResultSet();
+			while(myResult.next()){
+				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
+						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), myResult.getBoolean(8), myResult.getString(9)));
 			}
 			cstmt.close();
 		} catch (SQLException e) {
@@ -217,7 +236,29 @@ public class DBController{
 			myResult = cstmt.getResultSet();
 			while(myResult.next()){
 				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
-						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), true));
+						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), true, myResult.getString(8)));
+			}
+			cstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return mResumes;
+	}
+	
+	public ArrayList<Poster> getFavVacancies(FindPost findPost, int userId){
+		try {
+			mResumes.clear();
+			cstmt = connection.prepareCall("{call GetFavVacancies(?,?)}");
+			cstmt.setString("word", findPost.getWord());
+			cstmt.setInt("idUser", userId);
+			cstmt.execute();
+			
+			System.out.println(findPost.getWord() + "and[" + userId + "]");
+			
+			myResult = cstmt.getResultSet();
+			while(myResult.next()){
+				mResumes.add(new Poster(myResult.getInt(1), myResult.getInt(2), myResult.getString(3),
+						myResult.getString(4), myResult.getString(5), myResult.getString(6), myResult.getString(7), true, myResult.getString(8)));
 			}
 			cstmt.close();
 		} catch (SQLException e) {
@@ -246,6 +287,18 @@ public class DBController{
 	public void toggleFavoriteResume(Poster p, int id){
 		try {
 			cstmt = connection.prepareCall("{call toggleFavRes(?,?)}");
+			cstmt.setInt("idRes", p.getId());
+			cstmt.setInt("idUser", id);
+			cstmt.execute();
+			cstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void toggleFavoriteVacancy(Poster p, int id){
+		try {
+			cstmt = connection.prepareCall("{call toggleFavVac(?,?)}");
 			cstmt.setInt("idRes", p.getId());
 			cstmt.setInt("idUser", id);
 			cstmt.execute();
